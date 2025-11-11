@@ -1,18 +1,12 @@
 <template>
-  <h2>Welcome to the Tasks View</h2>
-  <router-link to="/">Go to home</router-link>
-
-  <ul>
-    <li v-for="task in tasks" :key="task.id">
-      {{ task.name }}
-    </li>
-  </ul>
+  <DataTable v-if="tasks" :columns="columns" :data="tasks" />
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import type { Tables } from '../../../database.types'
+import type { ColumnDef } from '@tanstack/vue-table'
+import { RouterLink } from 'vue-router'
 
 const tasks = ref<Tables<'tasks'>[] | null>()
 ;(async () => {
@@ -24,4 +18,53 @@ const tasks = ref<Tables<'tasks'>[] | null>()
 
   tasks.value = data
 })()
+
+const columns: ColumnDef<Tables<'tasks'>>[] = [
+  {
+    accessorKey: 'name',
+    header: () => h('div', { class: 'text-left' }, 'Name'),
+    cell: ({ row }) => {
+      return h(
+        RouterLink,
+        {
+          to: `/tasks/${row.original.id}`,
+          class: 'text-left font-medium hover:bg-muted w-full block',
+        },
+        () => row.getValue('name'),
+      )
+    },
+  },
+  {
+    accessorKey: 'status',
+    header: () => h('div', { class: 'text-left' }, 'Status'),
+    cell: ({ row }) => {
+      return h('div', { class: 'text-left font-medium' }, row.getValue('status'))
+    },
+  },
+  {
+    accessorKey: 'due_date',
+    header: () => h('div', { class: 'text-left' }, 'Due date'),
+    cell: ({ row }) => {
+      return h('div', { class: 'text-left font-medium' }, row.getValue('due_date'))
+    },
+  },
+  {
+    accessorKey: 'project_id',
+    header: () => h('div', { class: 'text-left' }, 'Project'),
+    cell: ({ row }) => {
+      return h('div', { class: 'text-left font-medium' }, row.getValue('project_id'))
+    },
+  },
+  {
+    accessorKey: 'collaborators',
+    header: () => h('div', { class: 'text-left' }, 'Collaborators'),
+    cell: ({ row }) => {
+      return h(
+        'div',
+        { class: 'text-left font-medium' },
+        JSON.stringify(row.getValue('collaborators')),
+      )
+    },
+  },
+]
 </script>
