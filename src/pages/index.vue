@@ -1,5 +1,9 @@
 <template>
-  <h2>Welcome to the Home View</h2>
+  <div></div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { usePageStore } from '@/stores/page'
+
+usePageStore().pageData.title = 'Homepage'
+</script>

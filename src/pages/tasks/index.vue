@@ -7,9 +7,11 @@ import { supabase } from '@/lib/supabaseClient'
 import type { Tables } from '../../../database.types'
 import type { ColumnDef } from '@tanstack/vue-table'
 import { RouterLink } from 'vue-router'
+import { usePageStore } from '@/stores/page'
 
+usePageStore().pageData.title = 'Tasks'
 const tasks = ref<Tables<'tasks'>[] | null>()
-;(async () => {
+const getTasks = async () => {
   const { data, error } = await supabase.from('tasks').select()
 
   if (error) {
@@ -17,7 +19,9 @@ const tasks = ref<Tables<'tasks'>[] | null>()
   }
 
   tasks.value = data
-})()
+}
+
+await getTasks()
 
 const columns: ColumnDef<Tables<'tasks'>>[] = [
   {
