@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { taskQuery, type Task } from '@/utils/supaQueries'
 import { usePageStore } from '@/stores/page'
+import { useErrorStore } from '@/stores/error'
 
 const route = useRoute('/tasks/[id]')
 const task = ref<Task | null>(null)
@@ -14,9 +15,10 @@ watch(
 )
 
 const getTask = async () => {
-  const { data, error } = await taskQuery(route.params.id)
+  const { data, error, status } = await taskQuery(route.params.id)
 
   if (error) {
+    useErrorStore().setError({ error, customCode: status })
     console.error('Error fetching projects:', error)
   }
 
