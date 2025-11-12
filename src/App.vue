@@ -4,6 +4,10 @@ import { useErrorStore } from './stores/error'
 import { storeToRefs } from 'pinia'
 
 const { activeError } = storeToRefs(useErrorStore())
+
+onErrorCaptured((error) => {
+  useErrorStore().setError({ error })
+})
 </script>
 
 <template>
