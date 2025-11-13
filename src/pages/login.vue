@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { login } from '@/utils/supaAuth'
+import { useFormErrors } from '@/composables/formErrors'
 
 const router = useRouter()
+
+const { serverError, handleServerError } = useFormErrors()
 
 const formData = ref({
   email: '',
@@ -9,8 +12,10 @@ const formData = ref({
 })
 
 const signin = async () => {
-  const isLoggedIn = await login(formData.value)
-  if (isLoggedIn) router.push('/')
+  const { error } = await login(formData.value)
+  if (!error) return router.push('/')
+
+  handleServerError(error)
 }
 </script>
 
@@ -32,6 +37,7 @@ const signin = async () => {
             <Label id="email" class="text-left">Email</Label>
             <Input
               v-model="formData.email"
+              :class="{ 'border-red-500': serverError }"
               type="email"
               placeholder="johndoe19@example.com"
               required
@@ -44,12 +50,16 @@ const signin = async () => {
             </div>
             <Input
               v-model="formData.password"
+              :class="{ 'border-red-500': serverError }"
               id="password"
               type="password"
               autocomplete
               required
             />
           </div>
+          <ul class="text-sm text-left text-red-500">
+            <li class="list-disc">{{ serverError }}</li>
+          </ul>
           <Button type="submit" class="w-full"> Login </Button>
         </form>
         <div class="mt-4 text-sm text-center">
