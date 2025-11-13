@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppErrorPage from './components/appError/AppErrorPage.vue'
+import { useAuthStore } from './stores/auth'
 import { useErrorStore } from './stores/error'
 import { storeToRefs } from 'pinia'
 
@@ -7,6 +8,10 @@ const { activeError } = storeToRefs(useErrorStore())
 
 onErrorCaptured((error) => {
   useErrorStore().setError({ error })
+})
+
+onMounted(() => {
+  useAuthStore().trackAuthChanges()
 })
 </script>
 

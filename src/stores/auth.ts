@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabaseClient'
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<null | User>(null)
   const profile = ref<null | Tables<'profiles'>>(null)
+  const isTrackingAuthChanges = ref(false)
 
   const setProfile = async () => {
     if (!user.value) {
@@ -40,10 +41,22 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const trackAuthChanges = () => {
+    if (isTrackingAuthChanges.value) return
+
+    isTrackingAuthChanges.value = true
+    supabase.auth.onAuthStateChange((event, session) => {
+      setTimeout(async () => {
+        await setAuth(session)
+      }, 0)
+    })
+  }
+
   return {
     user,
     profile,
     setAuth,
     getSession,
+    trackAuthChanges,
   }
 })
