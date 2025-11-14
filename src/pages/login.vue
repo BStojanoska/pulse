@@ -1,15 +1,26 @@
 <script setup lang="ts">
 import { login } from '@/utils/supaAuth'
 import { useFormErrors } from '@/composables/formErrors'
+import { watchDebounced } from '@vueuse/core'
 
 const router = useRouter()
 
-const { serverError, handleServerError } = useFormErrors()
+const { serverError, handleServerError, realtimeErrors, handleLoginForm } = useFormErrors()
 
 const formData = ref({
   email: '',
   password: '',
 })
+
+watchDebounced(
+  formData.value,
+  () => {
+    handleLoginForm(formData.value)
+  },
+  {
+    debounce: 1000,
+  },
+)
 
 const signin = async () => {
   const { error } = await login(formData.value)
@@ -42,6 +53,11 @@ const signin = async () => {
               placeholder="johndoe19@example.com"
               required
             />
+            <ul v-if="realtimeErrors?.email.length" class="text-sm text-left text-red-500">
+              <li v-for="err in realtimeErrors?.email" :key="err" class="list-disc">
+                {{ err }}
+              </li>
+            </ul>
           </div>
           <div class="grid gap-2">
             <div class="flex items-center">
@@ -56,6 +72,11 @@ const signin = async () => {
               autocomplete
               required
             />
+            <ul v-if="realtimeErrors?.password.length" class="text-sm text-left text-red-500">
+              <li v-for="err in realtimeErrors?.password" :key="err" class="list-disc">
+                {{ err }}
+              </li>
+            </ul>
           </div>
           <ul class="text-sm text-left text-red-500">
             <li class="list-disc">{{ serverError }}</li>

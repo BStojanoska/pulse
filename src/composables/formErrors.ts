@@ -1,7 +1,13 @@
+import type { LoginForm, RegisterForm } from '@/types/AuthForm'
 import type { AuthError } from '@supabase/supabase-js'
+
+type FormErrors<T> = {
+  [Property in keyof T]: string[]
+}
 
 export const useFormErrors = () => {
   const serverError = ref('')
+  const realtimeErrors = ref<FormErrors<LoginForm | RegisterForm>>()
 
   const handleServerError = (error: AuthError) => {
     serverError.value =
@@ -10,8 +16,31 @@ export const useFormErrors = () => {
         : 'An unexpected error occurred. Please try again later.'
   }
 
+  const handleLoginForm = async (formData: LoginForm) => {
+    realtimeErrors.value = {
+      email: [],
+      password: [],
+    }
+
+    const { validateEmail, validatePassword } = await import('@/utils/formValidations')
+
+    const emailErrors = validateEmail(formData.email)
+    if (emailErrors.length) {
+      realtimeErrors.value.email = emailErrors
+    }
+
+    const passwordErrors = validatePassword(formData.password)
+    if (passwordErrors.length) {
+      realtimeErrors.value.password = passwordErrors
+    }
+
+    return realtimeErrors.value
+  }
+
   return {
     serverError,
     handleServerError,
+    realtimeErrors,
+    handleLoginForm,
   }
 }
