@@ -3,22 +3,14 @@
 </template>
 
 <script setup lang="ts">
-import { useErrorStore } from '@/stores/error'
 import { usePageStore } from '@/stores/page'
-import { projectsQuery, type Projects } from '@/utils/supaQueries'
 import { columns } from '@/utils/tableColumns/projectsColumns'
+import { useProjectsStore } from '@/stores/loaders/projects'
+import { storeToRefs } from 'pinia'
 
 usePageStore().pageData.title = 'Projects'
-const projects = ref<Projects | null>()
-const getProjects = async () => {
-  const { data, error, status } = await projectsQuery
 
-  if (error) {
-    useErrorStore().setError({ error, customCode: status })
-  }
+const { projects } = storeToRefs(useProjectsStore())
 
-  projects.value = data
-}
-
-await getProjects()
+await useProjectsStore().getProjects()
 </script>
