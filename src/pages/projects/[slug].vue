@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { useErrorStore } from '@/stores/error'
+import { useProjectsStore } from '@/stores/loaders/projects'
 import { usePageStore } from '@/stores/page'
-import { projectQuery, type Project } from '@/utils/supaQueries'
+import { storeToRefs } from 'pinia'
 
 const route = useRoute('/projects/[slug]')
-const project = ref<Project | null>(null)
+
+const projectsStore = useProjectsStore()
+const { project } = storeToRefs(projectsStore)
+const { getProject } = projectsStore
 
 watch(
   () => project.value?.name,
@@ -13,18 +16,7 @@ watch(
   },
 )
 
-const getProject = async () => {
-  const { data, error, status } = await projectQuery(route.params.slug)
-
-  if (error) {
-    useErrorStore().setError({ error, customCode: status })
-    console.error('Error fetching projects:', error)
-  }
-
-  project.value = data
-}
-
-await getProject()
+await getProject(route.params.slug)
 </script>
 
 <template>

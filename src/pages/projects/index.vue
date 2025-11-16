@@ -17,7 +17,7 @@ await useProjectsStore().getProjects()
 
 const { getGroupedCollabs, groupedCollabs } = useCollabs()
 
-getGroupedCollabs(projects.value)
+getGroupedCollabs(projects.value ?? [])
 
 const columnsWithCollabs = columns(groupedCollabs)
 </script>
