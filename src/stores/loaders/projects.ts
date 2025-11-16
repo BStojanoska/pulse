@@ -1,4 +1,10 @@
-import { projectQuery, projectsQuery, type Project, type Projects } from '@/utils/supaQueries'
+import {
+  projectQuery,
+  projectsQuery,
+  updateProjectQuery,
+  type Project,
+  type Projects,
+} from '@/utils/supaQueries'
 import { defineStore } from 'pinia'
 import { useMemoize } from '@vueuse/core'
 import { useErrorStore } from '../error'
@@ -60,10 +66,20 @@ export const useProjectsStore = defineStore('projects-store', () => {
     validateCache({ ref: project, query: projectQuery, key: slug, loaderFn: loadProject })
   }
 
+  const updateProject = async () => {
+    if (!project.value) return
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { tasks, id, ...projectProperties } = project.value
+
+    await updateProjectQuery(projectProperties, id)
+  }
+
   return {
     projects,
     getProjects,
     getProject,
     project,
+    updateProject,
   }
 })

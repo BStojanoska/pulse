@@ -56,3 +56,7 @@ export const groupedProfilesQuery = (ids: string[]) => {
 }
 
 export type Collabs = QueryData<ReturnType<typeof groupedProfilesQuery>>
+
+export const updateProjectQuery = (updatedProject = {}, id: number) => {
+  return supabase.from('projects').update(updatedProject).eq('id', id)
+}

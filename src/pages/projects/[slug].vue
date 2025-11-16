@@ -7,7 +7,7 @@ const route = useRoute('/projects/[slug]')
 
 const projectsStore = useProjectsStore()
 const { project } = storeToRefs(projectsStore)
-const { getProject } = projectsStore
+const { getProject, updateProject } = projectsStore
 
 watch(
   () => project.value?.name,
@@ -20,20 +20,24 @@ await getProject(route.params.slug)
 </script>
 
 <template>
-  <Table>
+  <Table v-if="project">
     <TableRow>
       <TableHead> Name </TableHead>
-      <TableCell> {{ project?.name }} </TableCell>
+      <TableCell>
+        <AppInPlaceEditText v-model="project.name" @commit="updateProject" />
+      </TableCell>
     </TableRow>
     <TableRow>
       <TableHead> Description </TableHead>
       <TableCell>
-        {{ project?.description }}
+        <AppInPlaceEditText v-model="project.description" @commit="updateProject" textarea />
       </TableCell>
     </TableRow>
     <TableRow>
       <TableHead> Status </TableHead>
-      <TableCell>{{ project?.status }}</TableCell>
+      <TableCell
+        ><AppInPlaceEditStatus v-model="project.status" @commit="updateProject"
+      /></TableCell>
     </TableRow>
     <TableRow>
       <TableHead> Collaborators </TableHead>
