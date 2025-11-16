@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useCollabs } from '@/composables/collabs'
 import { useProjectsStore } from '@/stores/loaders/projects'
 import { usePageStore } from '@/stores/page'
 import { storeToRefs } from 'pinia'
@@ -17,6 +18,12 @@ watch(
 )
 
 await getProject(route.params.slug)
+
+const { getProfilesByIds } = useCollabs()
+
+const collabs = project.value?.collaborators
+  ? await getProfilesByIds(project.value.collaborators)
+  : []
 </script>
 
 <template>
@@ -30,7 +37,7 @@ await getProject(route.params.slug)
     <TableRow>
       <TableHead> Description </TableHead>
       <TableCell>
-        <AppInPlaceEditText v-model="project.description" @commit="updateProject" textarea />
+        <AppInPlaceEditTextArea v-model="project.description" @commit="updateProject" textarea />
       </TableCell>
     </TableRow>
     <TableRow>
@@ -45,10 +52,13 @@ await getProject(route.params.slug)
         <div class="flex">
           <Avatar
             class="-mr-4 border border-primary hover:scale-110 transition-transform"
-            v-for="collab in project?.collaborators"
-            :key="collab"
+            v-for="collab in collabs"
+            :key="collab.id"
           >
-            <RouterLink class="w-full h-full flex items-center justify-center" to="">
+            <RouterLink
+              class="w-full h-full flex items-center justify-center"
+              :to="{ name: `/users/[username]`, params: { username: collab.username } }"
+            >
               <AvatarImage src="" alt="" />
               <AvatarFallback> </AvatarFallback>
             </RouterLink>
@@ -72,8 +82,17 @@ await getProject(route.params.slug)
           </TableHeader>
           <TableBody>
             <TableRow v-for="task in project.tasks" :key="task.id">
-              <TableCell> {{ task.name }} </TableCell>
-              <TableCell> {{ task.status }} </TableCell>
+              <TableCell class="p-0">
+                <RouterLink
+                  class="text-left block hover:bg-muted p-4"
+                  :to="{ name: '/tasks/[id]', params: { id: task.id } }"
+                >
+                  {{ task.name }}
+                </RouterLink>
+              </TableCell>
+              <TableCell>
+                <AppInPlaceEditStatus readonly :modelValue="task.status"></AppInPlaceEditStatus>
+              </TableCell>
               <TableCell> {{ task.due_date }} </TableCell>
             </TableRow>
           </TableBody>
